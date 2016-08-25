@@ -29,11 +29,11 @@ _enc_middleware = (
 )
 
 _def_middleware = (
+  'django.contrib.sessions.middleware.SessionMiddleware',
+  'django.middleware.locale.LocaleMiddleware',
   'django.middleware.common.CommonMiddleware',
   #'django.middleware.http.ConditionalGetMiddleware',
-  'django.contrib.sessions.middleware.SessionMiddleware',
   'django.middleware.csrf.CsrfViewMiddleware',
-  #'django.middleware.locale.LocaleMiddleware',
   'django.contrib.auth.middleware.AuthenticationMiddleware',
   'django.contrib.messages.middleware.MessageMiddleware',
   'django_otp.middleware.OTPMiddleware',
@@ -120,6 +120,7 @@ def defaults(production=False,admin=False,site=0):
     LANGUAGES = (
       ('en', 'English'),
       ('de', 'Deutsch'),
+      ('fr', 'Français'),
     )
 
     # Hosts/domain names that are valid for this site; required if DEBUG is False

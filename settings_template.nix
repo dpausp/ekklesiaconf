@@ -21,6 +21,7 @@ def common(production=False, admin=False, site=0):
         SITE_ROOT = "${ekklesia}/identity"
         STATIC_ROOT = "${ekklesia}/share/www/static.prod"
         TEMPLATE_DIRS = ("${ekklesia}/share/templates",)
+        LOCALE_PATHS= ("${ekklesia}/share/locale",)
 
         ### taken from ansible-generated config and edited for testing
 
@@ -118,6 +119,7 @@ def common(production=False, admin=False, site=0):
         EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
         PASSWORD_HASHERS = ('django_scrypt.hashers.ScryptPasswordHasher', )
         INTERNAL_IPS = ("127.0.0.1", )
+
 
     ### extra
 
