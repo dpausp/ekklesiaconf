@@ -1,4 +1,4 @@
-{customVarsPath ? ./custom_vars.nix }:
+{customVarsPath ? ./custom_vars.nix, vars ? null }:
 
 let
 pkgs = import <nixpkgs> {};
@@ -12,9 +12,10 @@ sitePackages = "lib/${python.libPrefix}/site-packages";
 pythonpath = lib.concatMapStringsSep ":" (p: "${p}/${sitePackages}") (builtins.filter (x: lib.isDerivation x) (builtins.attrValues ekklesia_pkgs));
 path = lib.concatMapStringsSep ":" (p: "${p}/bin") (ekklesia.propagatedNativeBuildInputs ++ [ekklesia]);
 ekklesiaSitePackages = ekklesia + "/" + sitePackages;
-vars = lib.recursiveUpdate (import ./default_vars.nix) (scopedImport { inherit lib pkgs; } customVarsPath);
+_vars = if vars != null then vars 
+  else lib.recursiveUpdate (import ./default_vars.nix) (scopedImport { inherit lib pkgs; } customVarsPath);
 
-config = scopedImport { inherit vars ekklesia ekklesiaSitePackages lib mylib; } ./settings_template.nix;
+config = scopedImport { vars=_vars; inherit ekklesia ekklesiaSitePackages lib mylib; } ./settings_template.nix;
 configfile = pkgs.writeText "ekklesia-settings.py" config;
 
 startscript = pkgs.writeScript "start-ekklesia-uwsgi.sh" ''
