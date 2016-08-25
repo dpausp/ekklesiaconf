@@ -103,7 +103,7 @@ def common(production=False, admin=False, site=0):
 
         STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
         # XXX: doesn't work with bootstrap3, why?
-        CRISPY_TEMPLATE_PACK = 'uni_form'
+        CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
         CACHES = {
             "default": {
