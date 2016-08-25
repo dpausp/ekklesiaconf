@@ -4,11 +4,12 @@ let
 pkgs = import <nixpkgs> {};
 lib = pkgs.lib;
 mylib = scopedImport { inherit lib; } ./mylib.nix;
-ekklesia = import ../ekklesia/default.nix {};
+ekklesia_pkgs = import ../ekklesia/django1.8.nix {};
+ekklesia = ekklesia_pkgs.ekklesia;
 uwsgi = pkgs.uwsgi.override { plugins = ["python2"]; };
 python = pkgs.pythonPackages.python;
 sitePackages = "lib/${python.libPrefix}/site-packages";
-pythonpath = lib.concatMapStringsSep ":" (p: "${p}/${sitePackages}") (ekklesia.propagatedNativeBuildInputs ++ [ekklesia]);
+pythonpath = lib.concatMapStringsSep ":" (p: "${p}/${sitePackages}") (builtins.filter (x: lib.isDerivation x) (builtins.attrValues ekklesia_pkgs));
 path = lib.concatMapStringsSep ":" (p: "${p}/bin") (ekklesia.propagatedNativeBuildInputs ++ [ekklesia]);
 ekklesiaSitePackages = ekklesia + "/" + sitePackages;
 vars = lib.recursiveUpdate (import ./default_vars.nix) (scopedImport { inherit lib pkgs; } customVarsPath);
@@ -40,6 +41,7 @@ in pkgs.stdenv.mkDerivation {
     mkdir -p $bin $sitepac $settings_pkg
     touch $settings_pkg/__init__.py
     ln -s ${startscript} $prog
+    ln -s ${ekklesia} $out/ekklesia
     cp ${configfile} $settings_pkg/settings.py
 
     wrapper_envvars="\
