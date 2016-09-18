@@ -4,12 +4,12 @@ let
 pkgs = import <nixpkgs> {};
 lib = pkgs.lib;
 mylib = scopedImport { inherit lib; } ./mylib.nix;
-ekklesia_pkgs = import ../ekklesia/django1.8.nix {};
-ekklesia = ekklesia_pkgs.ekklesia;
-uwsgi = pkgs.uwsgi.override { plugins = ["python2"]; };
+requirements = (import ../ekklesia/requirements.nix {}).packages;
+ekklesia = import ../ekklesia {};
+uwsgi = pkgs.uwsgi.override { plugins = [ "python2" ]; };
 python = pkgs.pythonPackages.python;
 sitePackages = "lib/${python.libPrefix}/site-packages";
-pythonpath = lib.concatMapStringsSep ":" (p: "${p}/${sitePackages}") (builtins.filter (x: lib.isDerivation x) (builtins.attrValues ekklesia_pkgs));
+pythonpath = lib.concatMapStringsSep ":" (p: "${p}/${sitePackages}") (builtins.filter (x: lib.isDerivation x) (builtins.attrValues requirements) ++ [ ekklesia ]);
 path = lib.concatMapStringsSep ":" (p: "${p}/bin") (ekklesia.propagatedNativeBuildInputs ++ [ekklesia]);
 ekklesiaSitePackages = ekklesia + "/" + sitePackages;
 _vars = if vars != null then vars 

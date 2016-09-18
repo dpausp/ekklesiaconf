@@ -120,7 +120,6 @@ def common(production=False, admin=False, site=0):
         PASSWORD_HASHERS = ('django_scrypt.hashers.ScryptPasswordHasher', )
         INTERNAL_IPS = ("127.0.0.1", )
 
-
     ### extra
 
     ${extraConfig}
