@@ -15,7 +15,7 @@ print("loading config from file {}, (real: {})".format(settings_path, os.path.re
 def common(production=False, admin=False, site=0):
     class Common(defaults(production, admin, site)):
         
-        ### Nix-specific setting overrides
+        ### Nix-specific setting overrides depending on nix store location of ekklesia
 
         TOP_ROOT = "${ekklesia}"
         SITE_ROOT = "${ekklesia}/identity"
@@ -23,7 +23,7 @@ def common(production=False, admin=False, site=0):
         TEMPLATE_DIRS = ("${ekklesia}/share/templates",)
         LOCALE_PATHS= ("${ekklesia}/share/locale",)
 
-        ### taken from ansible-generated config and edited for testing
+        ### settings configurable by Nix
 
         ADMINS = ${py admins}
         MANAGERS = ${py managers}
@@ -116,7 +116,11 @@ def common(production=False, admin=False, site=0):
             }
         }
 
-        EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+        EMAIL_BACKEND = ${py (
+          if email.defaultSmtp != null then
+            "django.core.mail.backends.smtp.EmailBackend"
+          else
+            "django.core.mail.backends.console.EmailBackend")}
         PASSWORD_HASHERS = ('django_scrypt.hashers.ScryptPasswordHasher', )
         INTERNAL_IPS = ("127.0.0.1", )
 
