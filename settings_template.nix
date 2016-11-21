@@ -135,14 +135,8 @@ class Debug(common(production=False, admin=True, site=1)):
     pass
 
 
-Debug.LOGGING["handlers"]["file"]["filename"] = "/tmp/ekklesia.debug.log"
-
-
 class Production(common(production=True, admin=True, site=1)):
     ${if debugInProduction then "DEBUG = True" else "pass"}
-
-
-Production.LOGGING["handlers"]["file"]["filename"] = "${logfile}"
 
 
 # class ProductionAPI(common(production=True,admin=False,site=2)):
