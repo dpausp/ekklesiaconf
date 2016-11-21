@@ -139,6 +139,6 @@ class Production(common(production=True, admin=True, site=1)):
     ${if debugInProduction then "DEBUG = True" else "pass"}
 
 
-# class ProductionAPI(common(production=True,admin=False,site=2)):
-#    pass
+class ProductionAPI(common(production=True,admin=False,site=2)):
+    ${if debugInProduction then "DEBUG = True" else "pass"}
 ''
