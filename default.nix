@@ -54,5 +54,7 @@ in pkgs.stdenv.mkDerivation {
 
     wrapProgram $prog $wrapper_envvars
     makeWrapper ${ekklesia}/bin/ekklesia-manage.py $out/bin/ekklesia-manage.py $wrapper_envvars
+    makeWrapper ${requirements.celery}/bin/celery $out/bin/ekklesia-celery.py $wrapper_envvars \
+      --prefix CELERY_WORKER : yes
   '';
 }
