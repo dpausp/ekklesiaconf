@@ -1,6 +1,9 @@
 let 
 py = mylib.toPython;
-in 
+optional = settings_key: v: 
+  let path = lib.splitString "." v; in
+  if lib.hasAttrByPath path vars then "${settings_key} = ${mylib.toPython (lib.attrByPath path "" vars)}" else "";
+in
 with vars;
 (import ./default_settings.nix) +
 ''
@@ -38,17 +41,18 @@ def common(production=False, admin=False, site=0):
                         'USER': '${db.user}'
             }
         }
+
         DEFAULT_FROM_EMAIL = ${py email.defaultFrom}
         EMAIL_SUBJECT_PREFIX = ${py email.subjectPrefix}
 
-        EMAIL_HOST = ${py email.host}
-        EMAIL_PORT = ${py email.port}
-        EMAIL_HOST_USER = ${py email.host_user}
-        EMAIL_HOST_PASSWORD = ${py email.host_password}
-        EMAIL_USE_TLS = ${py email.useTls}
+        ${optional "EMAIL_HOST" "email.host"}
+        ${optional "EMAIL_PORT" "email.port"}
+        ${optional "EMAIL_HOST_USER" "email.hostUser"}
+        ${optional "EMAIL_HOST_PASSWORD" "email.hostPassword"}
+        ${optional "EMAIL_USE_TLS" "email.useTls"}
 
-        EMAIL_DEFAULT_IMAP = ${py email.defaultImap}
-        EMAIL_DEFAULT_SMTP = ${py email.defaultSmtp}
+        ${optional "EMAIL_DEFAULT_IMAP" "email.defaultImap"}
+        ${optional "EMAIL_DEFAULT_SMTP" "email.defaultSmtp"}
 
         RECAPTCHA_PUBLIC_KEY = ${py recaptchaPublic}
         RECAPTCHA_PRIVATE_KEY = ${py recaptchaPrivate}
@@ -78,7 +82,7 @@ def common(production=False, admin=False, site=0):
 
         ### TODO
 
-        EMAIL_IDS = {'idserver': {'email': '${idserverEmailID}'}}
+        EMAIL_IDS = {'idserver': {'email': '${senderEmail}'}}
 
         SHARE_PUSH = {'portal': ['https://portal.local/pushshare/']}
         USE_CELERY = True

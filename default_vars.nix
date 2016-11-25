@@ -12,6 +12,12 @@
     "localhost"
     "127.0.0.1"
   ];
+  email = {
+    subjectPrefix = "[identity]";
+    defaultFrom = "localhost";
+    useTls = true;
+  };
+
   apiGnupgKey = null;
   apiBackendKeys = {};
   senderEmail = "identity@example.com";
