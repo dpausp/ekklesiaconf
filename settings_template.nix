@@ -42,6 +42,9 @@ def common(production=False, admin=False, site=0):
         EMAIL_SUBJECT_PREFIX = ${py email.subjectPrefix}
 
         EMAIL_HOST = ${py email.host}
+        EMAIL_PORT = ${py email.port}
+        EMAIL_HOST_USER = ${py email.host_user}
+        EMAIL_HOST_PASSWORD = ${py email.host_password}
         EMAIL_USE_TLS = ${py email.useTls}
 
         EMAIL_DEFAULT_IMAP = ${py email.defaultImap}
@@ -64,20 +67,21 @@ def common(production=False, admin=False, site=0):
 
         BROKER_URL = ${py brokerUrl}
 
+        EMAIL_BACKEND = ${py (
+          if email.defaultSmtp != null then
+            "django.core.mail.backends.smtp.EmailBackend"
+          else
+            "django.core.mail.backends.console.EmailBackend")}
+
+        PASSWORD_HASHERS = ('django_scrypt.hashers.ScryptPasswordHasher', )
+        INTERNAL_IPS = ("127.0.0.1", )
+
         ### TODO
+
+        EMAIL_IDS = {'idserver': {'email': '${idserverEmailID}'}}
 
         SHARE_PUSH = {'portal': ['https://portal.local/pushshare/']}
         USE_CELERY = True
-
-        EMAIL_IDS = {'idserver': {'email': 'identity@id.piratenpartei.ch',
-                                  'key': [None, 'beo'],
-                                  'login': [None, 'beo']},
-                     'portal': {'email': 'abstimmung@id.piratenpartei.ch',
-                                'key': [None, 'beoportal'],
-                                'login': [None, 'beoportal']},
-                     'voting': {'email': 'vote@id.piratenpartei.ch',
-                                'key': [None, 'beovoting'],
-                                'login': [None, 'beovoting']}}
 
         EMAIL_REGISTER_ID = 'register'
 
@@ -93,7 +97,8 @@ def common(production=False, admin=False, site=0):
         EMAIL_GPG_IMPORT_HOME = None
         EMAIL_GPG_HOME = None
         EMAIL_INDEP_CRYPTO = False
-        EMAIL_QUEUE = 'crypto'
+        #EMAIL_QUEUE = 'crypto'
+        EMAIL_QUEUE = 'mail'
         EMAIL_TEMPLATES = {
             'register_confirm': {
                 'body': u'Bitte best\xe4tige deine Registrierung, indem du entweder auf {url}={code} gehst oder den folgenden Code auf {url} eingibst: {code}',
@@ -115,14 +120,6 @@ def common(production=False, admin=False, site=0):
                 }
             }
         }
-
-        EMAIL_BACKEND = ${py (
-          if email.defaultSmtp != null then
-            "django.core.mail.backends.smtp.EmailBackend"
-          else
-            "django.core.mail.backends.console.EmailBackend")}
-        PASSWORD_HASHERS = ('django_scrypt.hashers.ScryptPasswordHasher', )
-        INTERNAL_IPS = ("127.0.0.1", )
 
     ### extra
 

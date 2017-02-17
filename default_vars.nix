@@ -14,4 +14,5 @@
   ];
   apiGnupgKey = null;
   apiBackendKeys = {};
+  senderEmail = "identity@example.com";
 }
