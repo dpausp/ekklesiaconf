@@ -54,6 +54,8 @@ def common(production=False, admin=False, site=0):
         ${optional "EMAIL_DEFAULT_IMAP" "email.defaultImap"}
         ${optional "EMAIL_DEFAULT_SMTP" "email.defaultSmtp"}
 
+        ${optional "TOS_URL" "termsOfServiceUrl"}
+        
         RECAPTCHA_PUBLIC_KEY = ${py recaptchaPublic}
         RECAPTCHA_PRIVATE_KEY = ${py recaptchaPrivate}
 
