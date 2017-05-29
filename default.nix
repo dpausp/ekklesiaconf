@@ -4,10 +4,10 @@ let
 pkgs = import <nixpkgs> {};
 lib = pkgs.lib;
 mylib = scopedImport { inherit lib; } ./mylib.nix;
-requirements = (import ../ekklesia/requirements.nix {}).packages;
+requirements = (import ../ekklesia/requirements/requirements.nix {}).packages;
 ekklesia = import ../ekklesia {};
-uwsgi = pkgs.uwsgi.override { plugins = [ "python2" ]; };
-python = pkgs.pythonPackages.python;
+uwsgi = pkgs.uwsgi.override { plugins = [ "python3" ]; };
+python = ekklesia.interpreter;
 sitePackages = "lib/${python.libPrefix}/site-packages";
 pythonpath = lib.concatMapStringsSep ":" (p: "${p}/${sitePackages}") (builtins.filter (x: lib.isDerivation x) (builtins.attrValues requirements) ++ [ ekklesia ]);
 path = lib.concatMapStringsSep ":" (p: "${p}/bin") (ekklesia.propagatedNativeBuildInputs ++ [ekklesia]);
@@ -23,7 +23,7 @@ startscript = pkgs.writeScript "start-ekklesia-uwsgi.sh" ''
   echo PATH is: $PATH
   ${uwsgi}/bin/uwsgi \
     --http :8000 \
-    --plugin python2 \
+    --plugin python3 \
     --wsgi-file ${ekklesia}/lib/${python.libPrefix}/site-packages/identity/wsgi.py \
     "$@"
 '';
