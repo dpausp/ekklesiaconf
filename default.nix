@@ -6,8 +6,11 @@ lib = pkgs.lib;
 mylib = scopedImport { inherit lib; } ./mylib.nix;
 requirements = (import ../ekklesia/requirements/requirements.nix {}).packages;
 ekklesia = import ../ekklesia {};
-uwsgi = pkgs.uwsgi.override { plugins = [ "python3" ]; };
-python = ekklesia.interpreter;
+uwsgiWithPy3 = pkgs.uwsgi.override { plugins = [ "python3" ]; };
+uwsgi = lib.overrideDerivation pkgs.uwsgi (old: {
+  buildInputs = old.buildInputs ++ [ pkgs.pcre ];
+});
+python = ekklesia.python;
 sitePackages = "lib/${python.libPrefix}/site-packages";
 pythonpath = lib.concatMapStringsSep ":" (p: "${p}/${sitePackages}") (builtins.filter (x: lib.isDerivation x) (builtins.attrValues requirements) ++ [ ekklesia ]);
 path = lib.concatMapStringsSep ":" (p: "${p}/bin") (ekklesia.propagatedNativeBuildInputs ++ [ekklesia]);
