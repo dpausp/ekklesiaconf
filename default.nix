@@ -4,15 +4,12 @@ let
 pkgs = import <nixpkgs> {};
 lib = pkgs.lib;
 mylib = scopedImport { inherit lib; } ./mylib.nix;
-requirements = (import ../ekklesia/requirements/requirements.nix {}).packages;
 ekklesia = import ../ekklesia {};
-uwsgiWithPy3 = pkgs.uwsgi.override { plugins = [ "python3" ]; };
-uwsgi = lib.overrideDerivation pkgs.uwsgi (old: {
-  buildInputs = old.buildInputs ++ [ pkgs.pcre ];
-});
+deps = ekklesia.deps;
 python = ekklesia.python;
+uwsgi = pkgs.callPackage ./uwsgi.nix { python3 = python; plugins = [ "python3" ]; };
 sitePackages = "lib/${python.libPrefix}/site-packages";
-pythonpath = lib.concatMapStringsSep ":" (p: "${p}/${sitePackages}") (builtins.filter (x: lib.isDerivation x) (builtins.attrValues requirements) ++ [ ekklesia ]);
+pythonpath = lib.concatMapStringsSep ":" (p: "${p}/${sitePackages}") (builtins.filter (x: lib.isDerivation x) (builtins.attrValues deps) ++ [ ekklesia ]);
 path = lib.concatMapStringsSep ":" (p: "${p}/bin") (ekklesia.propagatedNativeBuildInputs ++ [ekklesia]);
 ekklesiaSitePackages = ekklesia + "/" + sitePackages;
 _vars = if vars != null then vars 
@@ -29,6 +26,12 @@ startscript = with _vars; with lib; pkgs.writeScript "start-ekklesia-uwsgi.sh" '
     --plugin python3 \
     --wsgi-file ${ekklesia}/lib/${python.libPrefix}/site-packages/identity/wsgi.py \
     "$@"
+'';
+
+managescript = pkgs.writeScript "ekklesia-manage" ''
+  echo PYTHONPATH is: $PYTHONPATH
+  echo PATH is: $PATH
+  python3 ${ekklesia}/lib/python3.6/site-packages/manage.py "$@"
 '';
 
 in pkgs.stdenv.mkDerivation {
@@ -56,8 +59,9 @@ in pkgs.stdenv.mkDerivation {
       "
 
     wrapProgram $prog $wrapper_envvars
-    makeWrapper ${ekklesia}/bin/ekklesia-manage.py $out/bin/ekklesia-manage.py $wrapper_envvars
-    makeWrapper ${requirements.celery}/bin/celery $out/bin/ekklesia-celery.py $wrapper_envvars \
+    makeWrapper ${python}/bin/python3 $out/bin/python3 $wrapper_envvars
+    makeWrapper ${managescript} $out/bin/ekklesia-manage $wrapper_envvars
+    makeWrapper ${deps.celery}/bin/celery $out/bin/ekklesia-celery.py $wrapper_envvars \
       --prefix CELERY_WORKER : yes
   '';
 }
