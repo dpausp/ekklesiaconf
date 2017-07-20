@@ -18,7 +18,7 @@ _vars = if vars != null then vars
 config = scopedImport { vars=_vars; inherit ekklesia ekklesiaSitePackages lib mylib; } ./settings_template.nix;
 configfile = pkgs.writeText "ekklesia-settings.py" config;
 
-startscript = with _vars; with lib; pkgs.writeScript "start-ekklesia-uwsgi.sh" ''
+startscript = with _vars; with lib; pkgs.writeScript "ekklesia-run" ''
   ${uwsgi}/bin/uwsgi \
     --http ${uwsgi_http_address}:${toString uwsgi_http_port} \
     --plugin python3 \
@@ -27,7 +27,7 @@ startscript = with _vars; with lib; pkgs.writeScript "start-ekklesia-uwsgi.sh" '
 '';
 
 managescript = pkgs.writeScript "ekklesia-manage" ''
-  python3 ${ekklesia}/lib/python3.6/site-packages/manage.py "$@"
+  python3 ${ekklesia}/lib/${python.libPrefix}/site-packages/manage.py "$@"
 '';
 
 showPathsScript = pkgs.writeScript "ekklesia-show-paths" ''
@@ -44,11 +44,9 @@ in pkgs.stdenv.mkDerivation {
     sitepac=$out/${sitePackages}
     settings_pkg=$sitepac/nixekklesiaconfig
     bin=$out/bin
-    prog=$bin/start-ekklesia-uwsgi
 
     mkdir -p $bin $sitepac $settings_pkg
     touch $settings_pkg/__init__.py
-    ln -s ${startscript} $prog
     ln -s ${ekklesia} $out/ekklesia
     cp ${configfile} $settings_pkg/settings.py
 
@@ -59,11 +57,11 @@ in pkgs.stdenv.mkDerivation {
       --prefix PATH : ${path} \
       "
 
-    wrapProgram $prog $wrapper_envvars
+    makeWrapper ${startscript} $out/bin/ekklesia-run $wrapper_envvars
     makeWrapper ${python}/bin/python3 $out/bin/python3 $wrapper_envvars
     makeWrapper ${managescript} $out/bin/ekklesia-manage $wrapper_envvars
     makeWrapper ${showPathsScript} $out/bin/ekklesia-show-paths $wrapper_envvars
-    makeWrapper ${deps.celery}/bin/celery $out/bin/ekklesia-celery.py $wrapper_envvars \
+    makeWrapper ${deps.celery}/bin/celery $out/bin/ekklesia-celery $wrapper_envvars \
       --prefix CELERY_WORKER : yes
   '';
 }
