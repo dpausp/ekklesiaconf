@@ -1,1 +1,1 @@
-result/lib/python2.7/site-packages/nixekklesiaconfig/settings.py
+result/lib/python3.6/site-packages/nixekklesiaconfig/settings.py

@@ -19,8 +19,6 @@ config = scopedImport { vars=_vars; inherit ekklesia ekklesiaSitePackages lib my
 configfile = pkgs.writeText "ekklesia-settings.py" config;
 
 startscript = with _vars; with lib; pkgs.writeScript "start-ekklesia-uwsgi.sh" ''
-  echo PYTHONPATH is: $PYTHONPATH
-  echo PATH is: $PATH
   ${uwsgi}/bin/uwsgi \
     --http ${uwsgi_http_address}:${toString uwsgi_http_port} \
     --plugin python3 \
@@ -29,9 +27,12 @@ startscript = with _vars; with lib; pkgs.writeScript "start-ekklesia-uwsgi.sh" '
 '';
 
 managescript = pkgs.writeScript "ekklesia-manage" ''
+  python3 ${ekklesia}/lib/python3.6/site-packages/manage.py "$@"
+'';
+
+showPathsScript = pkgs.writeScript "ekklesia-show-paths" ''
   echo PYTHONPATH is: $PYTHONPATH
   echo PATH is: $PATH
-  python3 ${ekklesia}/lib/python3.6/site-packages/manage.py "$@"
 '';
 
 in pkgs.stdenv.mkDerivation {
@@ -61,6 +62,7 @@ in pkgs.stdenv.mkDerivation {
     wrapProgram $prog $wrapper_envvars
     makeWrapper ${python}/bin/python3 $out/bin/python3 $wrapper_envvars
     makeWrapper ${managescript} $out/bin/ekklesia-manage $wrapper_envvars
+    makeWrapper ${showPathsScript} $out/bin/ekklesia-show-paths $wrapper_envvars
     makeWrapper ${deps.celery}/bin/celery $out/bin/ekklesia-celery.py $wrapper_envvars \
       --prefix CELERY_WORKER : yes
   '';
