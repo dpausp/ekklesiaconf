@@ -21,11 +21,11 @@ _vars = if vars != null then vars
 config = scopedImport { vars=_vars; inherit ekklesia ekklesiaSitePackages lib mylib; } ./settings_template.nix;
 configfile = pkgs.writeText "ekklesia-settings.py" config;
 
-startscript = pkgs.writeScript "start-ekklesia-uwsgi.sh" ''
+startscript = with _vars; with lib; pkgs.writeScript "start-ekklesia-uwsgi.sh" ''
   echo PYTHONPATH is: $PYTHONPATH
   echo PATH is: $PATH
   ${uwsgi}/bin/uwsgi \
-    --http :8000 \
+    --http ${uwsgi_http_address}:${toString uwsgi_http_port} \
     --plugin python3 \
     --wsgi-file ${ekklesia}/lib/${python.libPrefix}/site-packages/identity/wsgi.py \
     "$@"

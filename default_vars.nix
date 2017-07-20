@@ -21,4 +21,6 @@
   apiGnupgKey = null;
   apiBackendKeys = {};
   senderEmail = "identity@example.com";
+  uwsgi_http_address = "127.0.0.1";
+  uwsgi_http_port = 8000;
 }
