@@ -1,7 +1,6 @@
-{customVarsPath ? ./custom_vars.nix, vars ? null }:
+{customVarsPath ? ./custom_vars.nix, vars ? null, pkgs ? import ./requirements/nixpkgs.nix }:
 
 let
-pkgs = import <nixpkgs> {};
 lib = pkgs.lib;
 mylib = scopedImport { inherit lib; } ./mylib.nix;
 ekklesia = import ../ekklesia {};
